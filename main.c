@@ -100,13 +100,6 @@ void draw_menu(pax_buf_t* pb, float position_x, float position_y, float width, f
     }
 }
 
-pax_vec2f pax_right_text (
-    pax_buf_t *buf, pax_col_t color, pax_font_t const *font, float font_size, float x, float y, char const *text
-) {
-    pax_vec2f size = pax_text_size(font, font_size, text);
-    return pax_draw_text(buf, color, font, font_size, x - size.x, y, text);
-}
-
 void draw_background(pax_buf_t* buffer, float width, float height, char* header_text_l, char* header_text_c, char* header_text_r, char* footer_text) {
     float header_height = 32;
     float footer_height = 24;
@@ -151,7 +144,7 @@ int main() {
     
     // Save to raw file then exit
     save_to_file();
-    return 0;
+    //return 0;
 
     //Or start SDL2 and render in a window
 

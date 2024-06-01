@@ -1,6 +1,10 @@
 BUILDDIR ?= build
 
-all: build
+all: submodules build
+
+.PHONY: submodules
+submodules:
+	git submodule update --init --recursive
 
 .PHONY: clean
 clean:
@@ -10,7 +14,6 @@ clean:
 build:
 	mkdir -p "$(BUILDDIR)"
 	cd "$(BUILDDIR)"; cmake ..
-	cd "$(BUILDDIR)/pax-graphics"; make
 	cd "$(BUILDDIR)"; make
 
 .PHONY: run
