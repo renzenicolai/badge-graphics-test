@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <pax_gfx.h>
+#include <pax_codecs.h>
 #include <SDL2/SDL.h>
 
 #define WINDOW_WIDTH 800
@@ -11,6 +12,38 @@ pax_buf_t fb;
 SDL_Window* window;
 SDL_Renderer* renderer;
 SDL_Texture* texture;
+
+typedef enum asset_index {
+    ASSET_LOGO,
+    ASSET_USER_ICON,
+    ASSET_BATTERY_ICON,
+    ASSET_WIFI_ICON,
+    ASSET_APP_ICON,
+    ASSET_MESSAGES_ICON,
+    ASSET_BADGEHUB_ICON,
+    ASSET_SETTINGS_ICON,
+    ASSET_POWER_ICON,
+    ASSET_LAST
+} asset_index_t;
+
+pax_buf_t assets[ASSET_LAST];
+
+bool initialize_asset(asset_index_t index, const char* file_path) {
+    FILE* file = fopen(file_path, "rb");
+    if (!file) {
+        printf("Failed to open %s\n", file_path);
+        return false;
+    }
+    bool res = pax_decode_png_fd(&assets[index], file, PAX_BUF_32_8888ARGB, 0);
+    fclose(file);
+    return res;
+}
+
+bool initialize_assets() {
+    if (!initialize_asset(ASSET_LOGO, "resources/badgeteam.png")) return false;
+    if (!initialize_asset(ASSET_USER_ICON, "resources/user_icon.png")) return false;
+    return true;
+}
 
 void sdl2_blit(pax_buf_t* pax_buffer) {
     int texture_pitch = 0;
@@ -128,10 +161,19 @@ void draw_test(pax_buf_t* buffer) {
 }
 
 int main() {
+    bool res;
+
+    res = initialize_assets();
+
+    if (!res) {
+        printf("Failed to initialize assets\n");
+        return 1;
+    }
+
     printf("Linux graphics test\n");
     pax_buf_init(&fb, NULL, 800, 480, PAX_BUF_16_565RGB);
     pax_buf_reversed(&fb, false);
-    pax_background(&fb, pax_col_rgb(0, 0, 0));
+    pax_background(&fb, pax_col_rgb(0, 255, 0));
 
     // Pre-render background
     pax_buf_t background;
@@ -140,7 +182,9 @@ int main() {
 
     pax_draw_image(&fb, &background, 0, 0); // Copy background to framebuffer
 
-    draw_menu(&fb, fb.width / 4, fb.height / 4, fb.width / 2, fb.height / 2);
+    pax_draw_image(&fb, &assets[ASSET_LOGO], (fb.width - assets[ASSET_LOGO].width) / 2, (fb.height - assets[ASSET_LOGO].height) / 2); // Logo
+
+    //draw_menu(&fb, fb.width / 4, fb.height / 4, fb.width / 2, fb.height / 2);
     
     // Save to raw file then exit
     save_to_file();
@@ -160,7 +204,7 @@ int main() {
             }
         }
 
-        pax_draw_image(&fb, &background, 0, 0); // Copy background to framebuffer
+        //pax_draw_image(&fb, &background, 0, 0); // Copy background to framebuffer
         //... Add your own drawing stuff here
 
         // render PAX buffer to SDL2 screen

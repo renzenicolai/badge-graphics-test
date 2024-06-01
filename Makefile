@@ -18,7 +18,7 @@ build:
 
 .PHONY: run
 run:
-	cd "$(BUILDDIR)"; ./linux_gfx
+	./$(BUILDDIR)/linux_gfx
 
 .PHONY: convert
 convert:
