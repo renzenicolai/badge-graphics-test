@@ -6,7 +6,8 @@ project(linux_gfx)
 set(TARGET ${PROJECT_NAME})
 
 aux_source_directory(. SRC_LIST)
-add_executable(${TARGET} ${SRC_LIST})
+aux_source_directory(fonts FONT_SRC_LIST)
+add_executable(${TARGET} ${SRC_LIST} ${FONT_SRC_LIST})
 
 target_include_directories(${TARGET} PUBLIC
     .
